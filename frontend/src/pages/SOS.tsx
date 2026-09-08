@@ -17,9 +17,19 @@ const publicHazards = [
   ['landslide', '▲', 'Landslide'],
   ['cyclone', '◉', 'Cyclone'],
   ['fire', '♨', 'Fire'],
+  ['earthquake', '◈', 'Earthquake'],
   ['heavy_rainfall', '☂', 'Heavy Rain'],
+  ['medical_emergency', '✚', 'Medical Emergency'],
   ['other', '•••', 'Other'],
 ] as const;
+
+const specialNeedsOptions = [
+  'Elderly',
+  'Infant / Child',
+  'Disabled / Mobility Impaired',
+  'Medical Patient / Injured',
+] as const;
+
 
 export default function SOS() {
   const { user } = useAuth();
@@ -123,6 +133,36 @@ export default function SOS() {
           <div className="sos-public-fields">
             <FormField label="People needing help">
               <input type="number" min={1} max={1000} value={f.people_count} onChange={e => setF({ ...f, people_count: e.target.value })} />
+            </FormField>
+            <FormField label="Special assistance needed (increases priority)">
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '4px' }}>
+                {specialNeedsOptions.map(opt => {
+                  const selected = (f.special_needs || []).includes(opt);
+                  return (
+                    <button
+                      type="button"
+                      key={opt}
+                      style={{
+                        padding: '6px 12px',
+                        borderRadius: '999px',
+                        fontSize: '12px',
+                        fontWeight: selected ? 700 : 500,
+                        border: selected ? '1px solid #e2262e' : '1px solid rgba(190, 218, 245, 0.75)',
+                        background: selected ? 'rgba(255, 230, 232, 0.85)' : 'rgba(255, 255, 255, 0.7)',
+                        color: selected ? '#b91824' : '#1e4060',
+                        cursor: 'pointer',
+                      }}
+                      onClick={() => {
+                        const current = f.special_needs || [];
+                        const next = selected ? current.filter((x: string) => x !== opt) : [...current, opt];
+                        setF({ ...f, special_needs: next });
+                      }}
+                    >
+                      {selected ? '✓ ' : '+ '}{opt}
+                    </button>
+                  );
+                })}
+              </div>
             </FormField>
             <FormField label="Short message (optional)">
               <textarea placeholder="Example: Water entering house, elderly person unable to move" value={f.message} onChange={e => setF({ ...f, message: e.target.value })} />

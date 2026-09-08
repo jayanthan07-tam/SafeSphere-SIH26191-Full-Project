@@ -81,11 +81,34 @@ class HazardType(str, enum.Enum):
     cyclone = "cyclone"
     heavy_rainfall = "heavy_rainfall"
     fire = "fire"
+    earthquake = "earthquake"
+    medical_emergency = "medical_emergency"
     infrastructure = "infrastructure"
     waterlogging = "waterlogging"
     bridge_damage = "bridge_damage"
     multi_hazard = "multi_hazard"
     other = "other"
+
+    @classmethod
+    def _missing_(cls, value: object) -> "HazardType | None":
+        if isinstance(value, str):
+            normalized = value.strip().lower().replace(" ", "_").replace("-", "_")
+            aliases = {
+                "heavy_rain": cls.heavy_rainfall,
+                "heavy_rainfall": cls.heavy_rainfall,
+                "rain": cls.heavy_rainfall,
+                "medical": cls.medical_emergency,
+                "medical_emergency": cls.medical_emergency,
+                "quake": cls.earthquake,
+                "earthquake": cls.earthquake,
+            }
+            if normalized in aliases:
+                return aliases[normalized]
+            for member in cls:
+                if member.value == normalized or member.name.lower() == normalized:
+                    return member
+        return None
+
 
 
 class RiskClass(str, enum.Enum):
@@ -377,6 +400,7 @@ class FamilyMember(Base):
     relationship: Mapped[str] = mapped_column(String(64))
     phone: Mapped[str] = mapped_column(String(32))
     age_group: Mapped[str] = mapped_column(String(32), default="adult")
+    address: Mapped[str | None] = mapped_column(String(255), nullable=True)
     special_assistance: Mapped[list] = mapped_column(JSON, default=list)
     sms_enabled: Mapped[bool] = mapped_column(Boolean, default=True)
     app_alerts_enabled: Mapped[bool] = mapped_column(Boolean, default=True)

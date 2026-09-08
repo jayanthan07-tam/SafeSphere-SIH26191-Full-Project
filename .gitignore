@@ -1,12 +1,45 @@
+# Environment & secrets
 .env
-__pycache__/
-*.py[cod]
+.env.*
+!.env.example
+
+# Local SQLite databases
+*.db
+*.sqlite
+*.sqlite3
+disaster.db
+backend/disaster.db
+
+# Dependencies & virtual environments
+node_modules/
+frontend/node_modules/
 .venv/
 venv/
+backend/.venv/
+
+# Python cache & build
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
 backend/.pytest_cache/
-frontend/node_modules/
+.pytest_cache/
+
+# Frontend build
 frontend/dist/
+dist/
+
+# User uploads & ephemeral storage
 storage/uploads/*
 !storage/uploads/.gitkeep
+storage/scratch/*
+!storage/scratch/.gitkeep
+
+# System & IDE files
 *.log
 .DS_Store
+Thumbs.db
+.vscode/
+.idea/
+frontend/dist/

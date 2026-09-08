@@ -146,9 +146,10 @@ def list_sos(status: WorkflowStatus | None = None, db: Session = Depends(get_db)
     stmt = select(SOSRequest)
     if user.role in {UserRole.citizen, UserRole.family_member}:
         stmt = stmt.where(SOSRequest.user_id == user.id)
+        return db.scalars(stmt.order_by(SOSRequest.created_at.desc())).all()
     if status:
         stmt = stmt.where(SOSRequest.status == status)
-    return db.scalars(stmt.order_by(SOSRequest.created_at.desc())).all()
+    return db.scalars(stmt.order_by(SOSRequest.priority_score.desc(), SOSRequest.created_at.desc())).all()
 
 
 @router.post("/{sos_id}/assign", response_model=SOSOut)
