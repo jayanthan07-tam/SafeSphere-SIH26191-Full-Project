@@ -19,6 +19,7 @@ export default function CitizenReports() {
   const geo = useGeolocation();
   const [rows, setRows] = useState<CitizenReport[]>([]);
   const [error, setError] = useState('');
+  const [imageFile, setImageFile] = useState<File | null>(null);
   const [f, setF] = useState<any>({
     hazard_type: state?.hazard_type || 'flood',
     description: '', latitude: '', longitude: '', citizen_severity: 'moderate', people_affected: '', road_blocked: false,
@@ -48,7 +49,13 @@ export default function CitizenReports() {
         const c = await geo.getPosition();
         latitude = c.latitude; longitude = c.longitude;
       }
-      await api.post('/citizen-reports', { ...f, latitude: +latitude, longitude: +longitude, people_affected: f.people_affected === '' ? null : +f.people_affected });
+      const res: any = await api.post('/citizen-reports', { ...f, latitude: +latitude, longitude: +longitude, people_affected: f.people_affected === '' ? null : +f.people_affected });
+      if (imageFile && res?.id) {
+        const fd = new FormData();
+        fd.append('file', imageFile);
+        await api.upload(`/citizen-reports/${res.id}/evidence`, fd).catch(() => undefined);
+        setImageFile(null);
+      }
       setF({ ...f, description: '', people_affected: '' });
       await load();
     } catch (e: any) { setError(e.message); }
@@ -67,11 +74,12 @@ export default function CitizenReports() {
           <FormField label="GPS status"><input readOnly value={f.latitude ? `${Number(f.latitude).toFixed(5)}, ${Number(f.longitude).toFixed(5)}` : 'Location permission required'} /></FormField>
           <FormField label="Citizen severity"><select value={f.citizen_severity} onChange={e => setF({ ...f, citizen_severity: e.target.value })}><option>low</option><option>moderate</option><option>high</option><option>critical</option></select></FormField>
           <FormField label="People affected"><input type="number" min="0" value={f.people_affected} onChange={e => setF({ ...f, people_affected: e.target.value })} /></FormField>
+          <FormField label="Photo / Evidence (optional)"><input type="file" accept="image/*" onChange={e => setImageFile(e.target.files?.[0] || null)} /></FormField>
           <button className="btn primary">Submit GPS-tagged report</button>
         </form>
       </Card>
       <Card title={user?.role === 'citizen' ? 'My reports' : 'Verification queue'}>
-        {rows.length ? <DataTable headers={['Hazard', 'Description', 'Severity', 'Status', 'Action']}>{rows.map(r => <tr key={r.id}><td>{r.hazard_type}</td><td>{r.description}</td><td>{r.citizen_severity}</td><td><StatusBadge value={r.status} /></td><td>{user?.role !== 'citizen' && <div className="button-row"><button className="btn tiny" onClick={() => verify(r.id, 'verified')}>Verify</button><button className="btn tiny ghost" onClick={() => verify(r.id, 'rejected')}>Reject</button></div>}</td></tr>)}</DataTable> : <Empty title="No reports" />}
+        {rows.length ? <DataTable headers={['Hazard', 'Description', 'Severity', 'Status', 'Date/Time', 'Evidence', 'Action']}>{rows.map(r => <tr key={r.id}><td>{r.hazard_type}</td><td>{r.description}</td><td>{r.citizen_severity}</td><td><StatusBadge value={r.status} /></td><td>{new Date(r.created_at).toLocaleString()}</td><td>{r.evidence_url ? <a href={`${api.baseUrl}${r.evidence_url}`} target="_blank" rel="noreferrer" style={{ color: '#0f6ea9', fontWeight: 600 }}>View Photo</a> : '—'}</td><td>{user?.role !== 'citizen' && <div className="button-row"><button className="btn tiny" onClick={() => verify(r.id, 'verified')}>Verify</button><button className="btn tiny ghost" onClick={() => verify(r.id, 'rejected')}>Reject</button></div>}</td></tr>)}</DataTable> : <Empty title="No reports" />}
       </Card>
     </div>
   </>;

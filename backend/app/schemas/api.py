@@ -444,6 +444,7 @@ class FamilyMemberCreate(BaseModel):
     relationship: str
     phone: str
     age_group: str = "adult"
+    address: str | None = None
     special_assistance: list[str] = Field(default_factory=list)
     sms_enabled: bool = True
     app_alerts_enabled: bool = True
@@ -464,6 +465,7 @@ class FamilyMemberOut(ORMModel):
     relationship: str
     phone: str
     age_group: str
+    address: str | None = None
     special_assistance: list[Any]
     sms_enabled: bool
     app_alerts_enabled: bool
