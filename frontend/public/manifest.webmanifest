@@ -1,0 +1,11 @@
+{
+  "name": "SafeSphere Disaster Management",
+  "short_name": "SafeSphere",
+  "description": "Risk intelligence, emergency SOS, family safety and relocation decision support for SIH26191.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0b62c9",
+  "theme_color": "#0b62c9",
+  "orientation": "any",
+  "icons": []
+}

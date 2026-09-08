@@ -1,0 +1,1 @@
+export function RiskGauge({score,label='Risk'}:{score:number;label?:string}){const cl=score>=80?'critical':score>=60?'high':score>=35?'moderate':'safe';return <div className={`risk-gauge ${cl}`}><div className="gauge-score">{score.toFixed(1)}</div><span>{label}</span></div>}
