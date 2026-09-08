@@ -1,6 +1,6 @@
 const STATIC_CACHE = 'safesphere-static-v1';
 const DATA_CACHE = 'safesphere-data-v1';
-const APP_SHELL = ['/', '/index.html', '/manifest.webmanifest'];
+const APP_SHELL = ['./', './index.html', './manifest.webmanifest'];
 
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(STATIC_CACHE).then(cache => cache.addAll(APP_SHELL)).then(() => self.skipWaiting()));
@@ -39,7 +39,7 @@ self.addEventListener('fetch', event => {
         const copy = res.clone();
         caches.open(STATIC_CACHE).then(cache => cache.put(req, copy));
         return res;
-      }).catch(() => caches.match('/index.html')))
+      }).catch(() => caches.match('./index.html')))
     );
   }
 });
